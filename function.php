@@ -1,0 +1,91 @@
+ <?php 
+$conn= mysqli_connect("localhost", "root", "", "phpdasar");
+
+function query($query){
+	global $conn;
+
+	$result = mysqli_query($conn, $query);
+	$rows = [];
+	while($row = mysqli_fetch_assoc($result)) {
+		$rows[] = $row;
+	}
+	return $rows;
+
+}
+
+function tambah($data){
+	global $conn;
+	$nama =  htmlspecialchars_decode($data["nama"]);
+		$nis =  htmlspecialchars_decode($data["nis"]);
+		$email = htmlspecialchars_decode($data["email"]);
+		$jurusan =  htmlspecialchars_decode($data["jurusan"]);
+		$gambar =  htmlspecialchars_decode($data["gambar"]);
+		
+
+$query = "INSERT INTO siswa VALUES('', '$nama', '$nis', '$email', '$jurusan', '$gambar')";
+	mysqli_query($conn, $query);
+	return mysqli_affected_rows($conn);
+}
+
+function hapus($id){
+	global $conn;
+	mysqli_query($conn, "DELETE FROM siswa WHERE id = $id");
+	return mysqli_affected_rows($conn);
+}
+
+
+function ubah($data){
+	global $conn;
+		$id = $data["id"];
+		$nama =  htmlspecialchars_decode($data["nama"]);
+		$nis =  htmlspecialchars_decode($data["nis"]);
+		$email = htmlspecialchars_decode($data["email"]);
+		$jurusan =  htmlspecialchars_decode($data["jurusan"]);
+		$gambar =  htmlspecialchars_decode($data["gambar"]);
+
+$query = "UPDATE siswa SET 
+				nama ='$nama',
+				nis = '$nis',
+				email = '$email',
+				jurusan = '$jurusan',
+				gambar = '$gambar'
+			WHERE id = '$id'
+			";
+				
+	mysqli_query($conn, $query);
+	return mysqli_affected_rows($conn);
+}
+
+function registrasi($data){
+	global $conn;
+	$username = strtolower(stripcslashes($data["username"]));
+	$password = mysqli_escape_string($conn, $data["password"]);
+	$password2 = mysqli_escape_string($conn, $data["password2"]);
+
+
+	// cek username
+	$result = mysqli_query($conn, "SELECT username FROM user WHERE username = '$username'");
+	if(mysqli_fetch_assoc($result) ){
+		echo "<script>
+				alert('username sudah terdaftar');
+			</script>";
+	}
+
+
+
+	if ($password !== $password2) {
+		echo "<script>
+				alert('konfirmasi password tidak sesuai!');
+			</script>";
+			return false;
+	}
+
+	// enkripsi password
+		$password = password_hash($password, PASSWORD_DEFAULT);
+
+	// user baru
+		mysqli_query($conn, "INSERT INTO user VALUES('', '$username', '$password')");
+		return mysqli_affected_rows($conn);
+}
+
+ ?>
